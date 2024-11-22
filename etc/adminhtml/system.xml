@@ -14,10 +14,6 @@
                 <field id="text" translate="label" type="textarea" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Dodatkowy opis</label>
                 </field>
-                <field id="url" translate="label comment" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Adres URL:</label>
-                    <comment>Adres URL banku.</comment>
-                </field>
                 <field id="partnerid" translate="label comment" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Partner ID:</label>
                     <comment>Kod partnera handlowego</comment>
@@ -30,21 +26,49 @@
                     <label>MCC:</label>
                     <comment>Kod MCC.</comment>
                 </field>
-                <field id="promotion" translate="label comment" type="text" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Promocja:</label>
-                    <comment>Kod promocji.</comment>
+                <field id="standard_promotion" translate="label comment" type="text" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Oferta standardowa:</label>
+                    <comment>Kod oferty standardowej.</comment>
                 </field>
-                <field id="salt" translate="label comment" type="text" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="category_promotion" translate="label comment" type="text" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Oferta specjalna dla Kategorii:</label>
+                    <comment>Kod oferty specjalnej dla Kategorii.</comment>
+                </field>
+                <field id="category_promotion_start" translate="label" type="date" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ważna od</label>
+                    <frontend_model>AliorBank\Raty\Model\Adminhtml\Source\DatePicker</frontend_model>
+                </field>
+                <field id="category_promotion_end" translate="label" type="date" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ważna do</label>
+                    <frontend_model>AliorBank\Raty\Model\Adminhtml\Source\DatePicker</frontend_model>
+                </field>
+                <field id="product_promotion" translate="label comment" type="text" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Oferta specjalna dla Produktu:</label>
+                    <comment>Kod oferty specjalnej dla Produktu.</comment>
+                </field>
+                <field id="product_promotion_start" translate="label" type="date" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ważna od</label>
+                    <frontend_model>AliorBank\Raty\Model\Adminhtml\Source\DatePicker</frontend_model>
+                </field>
+                <field id="product_promotion_end" translate="label" type="date" sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ważna do</label>
+                    <frontend_model>AliorBank\Raty\Model\Adminhtml\Source\DatePicker</frontend_model>
+                </field>
+                <field id="salt" translate="label comment" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Salt:</label>
                     <comment>Kod Salt odtrzymany od banku.</comment>
                 </field>
-                <field id="kalkulator" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>URL kalkulatora:</label>
-                    <comment>Link do obliczenia wysokości rat.</comment>
-                </field>
-                <field id="minOrderTotal" translate="label" type="text" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="minOrderTotal" translate="label" type="text" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Minimalna wartość zamówienia</label>
                     <comment>Minimalna wartość od której dostępna jest sprzedaż ratalna.</comment>
+                </field>
+                <field id="maxOrderTotal" translate="label" type="text" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Maksymalna wartość zamówienia</label>
+                    <comment>Maksymalna wartość do której dostępna jest sprzedaż ratalna.</comment>
+                </field>
+                <field id="showCalc" translate="label" type="select" sortOrder="18" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Wyświetl przycisk kalkulatora</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
         </section>

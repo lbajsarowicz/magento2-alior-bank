@@ -3,6 +3,11 @@ namespace AliorBank\Raty\Controller\Raty;
 
 class Redirect extends \Magento\Framework\App\Action\Action
 {
+    /**
+     * @var \AliorBank\Raty\Helper\Data
+     */
+    private $aliorsHelper;
+    
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \AliorBank\Raty\Helper\Data $aliorsHelper

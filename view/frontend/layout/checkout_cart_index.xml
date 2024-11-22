@@ -2,7 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="AliorBank\Raty\Block\Cart\Info" name="aliorbank_raty_cart_info" after="-" template="AliorBank_Raty::cart.phtml"></block>
+            <block class="Magento\Checkout\Block\Cart\Totals" name="aliorbank_raty_cart_info" after="-" template="AliorBank_Raty::cart.phtml"></block>
         </referenceContainer>
     </body>
 </page>

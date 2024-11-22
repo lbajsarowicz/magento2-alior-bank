@@ -8,6 +8,7 @@ class Redirect extends \Magento\Framework\View\Element\AbstractBlock
      */
     protected $formFactory;
     protected $aliorsHelper;
+    protected $taxHelper;
     private $order;
 
     /**
@@ -20,10 +21,12 @@ class Redirect extends \Magento\Framework\View\Element\AbstractBlock
         \Magento\Framework\View\Element\Context $context,
         \Magento\Framework\Data\FormFactory $formFactory,
         \AliorBank\Raty\Helper\Data $aliorsHelper,
+        \Magento\Catalog\Helper\Data $taxHelper,
         array $data = []
     ) {
         $this->formFactory = $formFactory;
         $this->aliorsHelper = $aliorsHelper;
+        $this->taxHelper = $taxHelper;
         parent::__construct($context, $data);
     }
 
@@ -33,18 +36,19 @@ class Redirect extends \Magento\Framework\View\Element\AbstractBlock
             return '';
         }
         
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $this->order->addStatusToHistory(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT, __('Waiting for payment.'));
         $this->order->save();
 
         $form = $this->formFactory->create();
-        $form->setAction($this->aliorsHelper->getAliorsConfig('url'))
+        $form->setAction($this->aliorsHelper->getAliorUrl())
             ->setId('alior_raty_checkout')
             ->setName('alior_raty_checkout')
             ->setMethod('POST')
             ->setUseContainer(true);
 
-        foreach ($this->getHiddenFields() as $field => $value) {
+        $hiddenFields = $this->getHiddenFields();
+
+        foreach ($hiddenFields as $field => $value) {
             $form->addField($field, 'hidden', array('name' => $field, 'value' => $value));
         }
 
@@ -63,16 +67,15 @@ class Redirect extends \Magento\Framework\View\Element\AbstractBlock
         $firstName = $this->order->getCustomerFirstname();
         $lastName = $this->order->getCustomerLastname();
 
-        $url = $this->aliorsHelper->getAliorsConfig('url');
         $partnerId = $this->aliorsHelper->getAliorsConfig('partnerid');
         $subpartnerId = $this->aliorsHelper->getAliorsConfig('subpartnerid');
         $mcc = $this->aliorsHelper->getAliorsConfig('mcc');
-        $promotion = $this->aliorsHelper->getAliorsConfig('promotion');
         $salt = $this->aliorsHelper->getAliorsConfig('salt');
         $calculatedIncome = '';
         $limit = '';
-        $transactionCode = $this->getOrdersCode($this->order->getIncrementId());
+        $transactionCode = $this->order->getIncrementId();
         $total = $this->order->getGrandTotal();
+        $promotion = $this->aliorsHelper->getPromotion($this->order->getAllVisibleItems(), false);
 
         $date = date('Y-m-d');
         $time = date('H:i:s');
@@ -80,10 +83,8 @@ class Redirect extends \Magento\Framework\View\Element\AbstractBlock
 
         $verificationCode = hash('sha256', $salt . $this->changeNumberFormat($total) .
             $transactionCode . $partnerId . $subpartnerId . $dateAndTime . $mcc . $firstName . $lastName . $limit . $calculatedIncome . $promotion);
-        $shipping = $this->order->getShippingInclTax() ?? $this->order->getShippingAmount();
 
-        //$array = $this->getAliorsArticlesListJson($this->order->getItems(), $shipping);
-        $array = $this->getAliorsArticlesListJson($this->order->getAllVisibleItems(), $shipping); //sepsite
+        $array = $this->getAliorsArticlesListJson($this->order); //sepsite
 
         return [
             'firstName' => $firstName,
@@ -98,65 +99,62 @@ class Redirect extends \Magento\Framework\View\Element\AbstractBlock
             'transactionCode' => $transactionCode,
             'dateAndTime' => $dateAndTime,
             'amount' => $this->changeNumberFormat($total),
-            'articlesList' => base64_encode(json_encode(
-                $this->getAliorsArticlesListJson($this->order->getAllVisibleItems(), $shipping) // septsite.pl - change getItems to getAllVisibleItems
-            ))
+            'articlesList' => base64_encode(json_encode($array)) // septsite.pl - change getItems to getAllVisibleItems
         ];
     }
 
-    private function getAliorsArticlesListJson($items, $totalShippingCost)
+    private function getAliorsArticlesListJson($order)
     {
         // @see https://stackoverflow.com/questions/42981409/php7-1-json-encode-float-issue
         // json_encode makes float values wrong. This is simple fix
         if (version_compare(phpversion(), '7.1', '>=')) {
             ini_set('serialize_precision', -1);
         }
-
         $json = ['articlesList' => []];
-        foreach ($items as $item) {
-            $price = ($item->getRowTotal()-$item->getDiscountAmount()+$item->getTaxAmount()+$item->getDiscountTaxCompensationAmount())/$item->getQtyOrdered();
-            $price = round($price, 2);
+        $discount = $order->getDiscountAmount();
+        $totalShippingCost = $this->order->getShippingInclTax() ?? $this->order->getShippingAmount();
+        $total = 0;
+        foreach ($order->getAllVisibleItems() as $item) {
+            $price = $this->getPrice($item);
+            $total += $item->getQtyOrdered() * $price;
 
-            //check price
-            $priceRowTotalInclTax = $item->getRowTotalInclTax() - $item->getDiscountAmount();
-            $checkPrice = $price * $item->getQtyOrdered();
-
-            if ($checkPrice != $priceRowTotalInclTax && $item->getQtyOrdered() > 1) {
-                $difference = $priceRowTotalInclTax - $checkPrice;
-                $priceFix = round(($price + $difference), 2);
-                $iloscFrist = $item->getQtyOrdered() -1;
-
-                $json['articlesList'][] = [
-                    "category" => $this->getAliorsCategory($item->getProduct()),
-                    "name" => $item->getName(),
-                    "number" => (int)$iloscFrist,
-                    "price" => $price,
-                    ];
-                
-                $json['articlesList'][] = [
-                    "category" => $this->getAliorsCategory($item->getProduct()),
-                    "name" => $item->getName(),
-                    "number" => 1,
-                    "price" => $priceFix,
-                    ];
-            } else {
-                $json['articlesList'][] = [
-                "category" => $this->getAliorsCategory($item->getProduct()),
-                "name" => $item->getName(),
+            $json['articlesList'][] = [
+                "category" =>  $this->getAliorsCategory($item->getProduct()),
+                "name" => $this->clearName($item->getName()),
                 "number" => (int)$item->getQtyOrdered(),
-                "price" => $price,
-                ];
-            }
+                "price" => (int)($this->changeNumberFormat($price)*100)/100,
+            ];
         }
-        if ($totalShippingCost) {
+
+        if ($totalShippingCost > 0) {
             $json['articlesList'][] = [
                 "category" => 'TKC_USLUGI', // from Alior's docs
                 "name" => 'Shipping costs',
                 "number" => 1,
                 "price" => (int)($this->changeNumberFormat($totalShippingCost)*100)/100,
             ];
+            $total += $totalShippingCost;
         }
 
+        if((int)$discount !== 0) {
+            $json['articlesList'][] = [
+                "category" => 'TKC_RABAT', // from Alior's docs
+                "name" => 'Discount',
+                "number" => 1,
+                'price' => (int)($this->changeNumberFormat($discount)*100)/100,
+            ];
+            $total += $discount;
+        }
+
+        if($order->getGrandTotal() != $total) {
+            $tax = $order->getGrandTotal() - $total;
+            $json['articlesList'][] = [
+                "category" =>  'TKC_USLUGI',
+                "name" => 'Tax',
+                "number" => 1,
+                "price" => (float)$this->changeNumberFormat($tax),
+            ];
+        }
         return $json;
     }
 
@@ -196,5 +194,21 @@ class Redirect extends \Magento\Framework\View\Element\AbstractBlock
     private function changeNumberFormat($value)
     {
         return number_format($value, 2, '.', '');
+    }
+
+    /**
+     * @param $name
+     * @return string
+    */
+    private function clearName($name) {
+        $name = str_replace('|', '', $name);
+        return preg_replace('/[\x00-\x1F]/', '', $name);
+    }
+
+    private function getPrice($item) {
+        if($this->aliorsHelper->getConfig('tax/calculation/algorithm') === 'UNIT_BASE_CALCULATION') {
+            return $item->getPriceInclTax();
+        }
+        return $item->getPrice();
     }
 }

@@ -1,7 +1,7 @@
 <?php
 namespace AliorBank\Raty\Model\Payment;
 
-// version 0.1.1
+// version 2.4.9
 
 class Raty extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -134,6 +134,9 @@ class Raty extends \Magento\Payment\Model\Method\AbstractMethod
             return false;
         }
         if (!$h->isValidAmount($h->getQuoteTotal($quote))){
+            return false;    
+        }
+        if (!$h->getPromotion($quote->getItems(), false)){
             return false;    
         }
 

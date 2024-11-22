@@ -1,5 +1,34 @@
-<div style="text-align:center;">
-    <a href="<?php echo $block->getCalculatorUrl(); ?>" target="_blank">
+<?php
+use AliorBank\Raty\Block\Cart\CartView;
+$helper = $this->helper('AliorBank\Raty\Helper\Data');
+$cartView = new CartView($helper);
+$baseUrl = $cartView->getKalkulatorUrl();
+$partnerId = $cartView->getPartnerId();
+$promotion = str_replace('${sep}', '%2C', $cartView->promotion);
+$price = $this->getTotals()['grand_total']->getValue();
+
+if($cartView->isValid && $helper->showCalc()): ?>
+<div class="ratyAlior">
+    <script>
+        var aliorPrice = <?php echo number_format($price, 2, '.', ''); ?>;
+
+        function getPrice() {
+            let price = jQuery('.grand td').find('span.price');
+            if (price.length === 0) {
+                return aliorPrice;
+            }
+            return parseFloat(price.text().replace(',', '.').replace(/\s+/g, '').replace(/([a-zA-Z])/g, "")).toFixed(2);
+        }
+        function openAliorCalculator() {
+            const baseUrl = '<?php echo $baseUrl;?>';
+            const partnerId = '<?php echo $partnerId;?>';
+            const promotion = '<?php echo $promotion;?>';
+            window.open(baseUrl + 'init?supervisor=' + partnerId + '&promotionList=' + promotion + '&amount=' + getPrice(), '_blank');
+        }
+    </script>
+
+    <a onclick="openAliorCalculator();">
         <img src="<?php echo $block->getViewFileUrl('AliorBank_Raty::images/alior-kalkulator-guzik.gif'); ?>" />
     </a>
 </div>
+<?php endif; ?>
