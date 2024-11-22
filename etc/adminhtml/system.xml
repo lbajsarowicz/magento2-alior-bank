@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="aliorbank_raty" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Alior Bank - Raty</label>
+                <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Aktywne?</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tytuł</label>
+                </field>
+                <field id="text" translate="label" type="textarea" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Dodatkowy opis</label>
+                </field>
+                <field id="url" translate="label comment" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Adres URL:</label>
+                    <comment>Adres URL banku.</comment>
+                </field>
+                <field id="partnerid" translate="label comment" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Partner ID:</label>
+                    <comment>Kod partnera handlowego</comment>
+                </field>
+                <field id="subpartnerid" translate="label comment" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Subpartner ID:</label>
+                    <comment>Dodatkowy kod partnera handlowego.</comment>
+                </field>
+                <field id="mcc" translate="label comment" type="text" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>MCC:</label>
+                    <comment>Kod MCC.</comment>
+                </field>
+                <field id="promotion" translate="label comment" type="text" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Promocja:</label>
+                    <comment>Kod promocji.</comment>
+                </field>
+                <field id="salt" translate="label comment" type="text" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Salt:</label>
+                    <comment>Kod Salt odtrzymany od banku.</comment>
+                </field>
+                <field id="kalkulator" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>URL kalkulatora:</label>
+                    <comment>Link do obliczenia wysokości rat.</comment>
+                </field>
+                <field id="minOrderTotal" translate="label" type="text" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Minimalna wartość zamówienia</label>
+                    <comment>Minimalna wartość od której dostępna jest sprzedaż ratalna.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

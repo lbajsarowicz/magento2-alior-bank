@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <aliorbank_raty>
+                <active>1</active>
+                <model>AliorBank\Raty\Model\Payment\Raty</model>
+                <order_status>pending_payment</order_status>
+                <title>AliorBank - Raty</title>
+                <allowspecific>0</allowspecific>
+                <text>Po złożeniu zamówienia zostaniesz przekierowany do Alior Banku.</text>
+                <min_order_total>0</min_order_total>
+                <max_order_total>0</max_order_total>
+            </aliorbank_raty>
+        </payment>
+    </default>
+</config>
