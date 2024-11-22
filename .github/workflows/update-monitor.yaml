@@ -1,0 +1,33 @@
+name: Check Alior Bank Magento 2 Updates
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Magento 2 ZIP URL
+        run: |
+          URL=$(curl -s https://www.aliorbank.pl/klienci-indywidualni/kredyty-i-pozyczki/kredyty-ratalne/informacje-dla-partnerow-handlowych.html | grep -oP '(?<=Magento 2 - <a href=")[^"]*')
+          echo "MAGENTO_ZIP_URL=https://www.aliorbank.pl$URL" >> $GITHUB_ENV
+
+      - name: Download Magento 2 ZIP
+        run: |
+          curl -o magento-2.zip ${{ env.MAGENTO_ZIP_URL }} \
+            && unzip -o -q magento-2.zip -d ./ \
+            && rsync -qavz AliorBank/Raty/ ./ \
+            && rm -rf ./magento-2.zip ./AliorBank
+
+      - name: Check for changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes detected."
+          else
+            echo "Changes detected in AliorBank/Raty" && exit 1
+          fi
