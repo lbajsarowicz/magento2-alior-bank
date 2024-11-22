@@ -1,0 +1,20 @@
+{
+  "name": "lbajsarowicz/magento2-alior-bank-raty",
+  "description": "N/A",
+  "require": {
+    "php": "~7.4.0||~8.1.0||~8.2.0",
+    "magento/framework": "*"
+  },
+  "type": "magento2-module",
+  "license": [
+    "proprietary"
+  ],
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "AliorBank\\Raty\\": ""
+    }
+  }
+}
